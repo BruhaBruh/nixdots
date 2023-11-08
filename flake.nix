@@ -4,15 +4,16 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus";
-    hyprland-nvidia.url = "github:hyprwm/hyprland";
-    waybar-hyprland.url = "github:hyprwm/hyprland";
+    hyprland.url = "github:hyprwm/hyprland";
     xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
     nur.url = "github:nix-community/NUR";
     nix-colors.url = "github:misterio77/nix-colors";
+
     sf-mono-liga-src = {
       url = "github:shaunsingh/SFMono-Nerd-Font-Ligaturized";
       flake = false;
     };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,19 +23,18 @@
   outputs = {
     self,
     nixpkgs,
-    hyprland-nvidia,
+    hyprland,
     home-manager,
-    utils, 
+    utils,
     ...
   } @ inputs:
-  let
-    system = "x86_64-linux";
-  in 
   {
     nixosConfigurations = {
       desktop = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = { inherit inputs hyprland-nvidia; };
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit inputs hyprland;
+        };
         modules = [
           ./host/configuration.nix
           home-manager.nixosModules.home-manager
@@ -43,10 +43,10 @@
               useUserPackages = true;
               useGlobalPkgs = false;
               extraSpecialArgs = { inherit inputs; };
-              users.bruhabruh = ./home;
+              # users.bruhabruh = ./home/desktop/home.nix;
             };
           }
-          hyprland-nvidia.nixosModules.default
+          hyprland.nixosModules.default
           { programs.hyprland.enable = true; }
         ];
       };
